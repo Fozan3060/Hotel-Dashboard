@@ -10,17 +10,17 @@ import { FaArrowRight } from "react-icons/fa6";
 const Sidebar = () => {
   const [open, setopen] = useState(true)
   return (
-    <div className="lg:w-80 w-20 z-30">
+    <div className='lg:w-80 w-20'>
       <div
-        className={`fixed lg:static top-0 ${open ? "translate-x-0" : "-translate-x-60"
-          } transition-transform duration-300 w-80 h-screen border-r border-gray-100 bg-white `}
+        className={`lg:sticky fixed w-80  z-30 bg-white  top-0 ${open ? "translate-x-0" : "-translate-x-60"
+          } transition-transform duration-300 h-screen border-r border-gray-100  `}
       >
-        <div className="flex h-10  justify-end mt-5  px-7 text-gray-800">
-          <button className={`lg:hidden block ${open ? "transform origin-center rotate-180 " : "transform origin-center rotate-270 "} duration-500 transition-allduration-1000 transition-all`}  onClick={() => setopen((prev) => !prev)}>
+        <div className="flex h-20  justify-end   px-7 text-gray-800">
+          <button className={`lg:hidden block ${open ? "transform origin-center rotate-180 " : "transform origin-center rotate-270 "} duration-500 transition-allduration-1000 transition-all`} onClick={() => setopen((prev) => !prev)}>
             <FaArrowRight size={26} />
           </button>
         </div>
-        <nav className="flex flex-col gap-2 mt-6 px-6">
+        <nav className="flex flex-col gap-2  px-6">
           <SidebarLink to="/" icon={HiOutlineHome}>
             Home
           </SidebarLink>
@@ -39,6 +39,7 @@ const Sidebar = () => {
         </nav>
       </div>
     </div>
+
   );
 };
 
