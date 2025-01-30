@@ -1,31 +1,128 @@
-import React, { useEffect, useState } from 'react'
-import { getCabins } from '../services/apiCabins'
+import React, { useEffect, useRef, useState } from 'react';
+import { getCabins } from '../services/apiCabins';
+import { useQuery } from '@tanstack/react-query';
+import { CiMenuKebab } from "react-icons/ci";
+import { IoCopy } from "react-icons/io5";
+import { MdModeEditOutline } from "react-icons/md";
+import { FaTrash } from "react-icons/fa";
+import { AnimatePresence, motion } from 'framer-motion';
+import DeleteLoading from './DeleteLoading';
+import Modal from 'react-modal';
+import CabinForm, { CabinFormInputs } from './CabinForm';
+import useDeleteCabin from './customhooks/DeleteCabin';
+import useCreateCabin from './customhooks/CreateCabin';
 
-type Props = {}
 
-const Cabin = (props: Props) => {
-  const [cabins, setCabins] = useState<any[]>([]); 
+const Cabin = () => {
+  const [openModal, setOpenModal] = useState<number | null>(null);
+  const { isLoading, data: cabins, error } = useQuery({ queryKey: ['getCabins'], queryFn: getCabins });
+  const [loadingDelete, setLoadingDelete] = useState<boolean>(false);
+  const [showform, setShowform] = useState<boolean>(false)
+  const [cabinToEdit, setcabinToEdit] = useState<CabinFormInputs | null>(null)
+  const { mutate: DeleteCabin } = useDeleteCabin();
+  const modalRef = useRef(null);
 
   useEffect(() => {
-    const fetchCabins = async () => {
-      const data = await getCabins();
-      setCabins(data); 
-      console.log(data); 
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        setOpenModal(null); // Close the modal if clicked outside
+      }
     };
 
-    fetchCabins(); 
-  }, []);
+    // Add event listener when the modal is open
+    if (openModal !== null) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
 
+    // Cleanup the event listener
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openModal]);
+  const customStyles = {
+    overlay: {
+      zIndex: 10000,
+      backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    },
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      height: "fit-content",
+      width: "20rem"
+    },
+  };
+  const { mutate: createCabin } = useCreateCabin();
   return (
     <div>
-      <h1>Cabins</h1>
-      <ul>
-        {cabins.map((cabin, index) => (
-          <li key={index}>{cabin.name}</li> 
+      <h1 className='text-gray-700 font-bold text-4xl text-center pt-5'>All Cabins</h1>
+      <div className='grid mt-10 border rounded-t-lg m-auto grid-cols-11 sm:grid-cols-10 2xl:w-[75rem] xl:w-[50rem] uppercase sm:text-base text-sm text-gray-700 font-semibold'>
+        <div className='col-span-3'><h1 className='py-3 text-center'>Cabins</h1></div>
+        <div className='col-span-3'><h1 className='py-3 '>Capacity</h1></div>
+        <div className='col-span-2'><h1 className='py-3 '>Price</h1></div>
+        <div className='col-span-2'><h1 className='py-3 '>Discount</h1></div>
+      </div>
+
+      <div>
+        {cabins?.map((cabin, index) => (
+          <div key={cabin.id} className='grid border-b sm:text-base text-sm bg-white items-center m-auto grid-cols-11 sm:grid-cols-10 2xl:w-[75rem] xl:w-[50rem] uppercase text-gray-700 font-semibold'>
+            <div className='col-span-3 sm:flex-row flex-col flex items-center sm:gap-11'>
+              <img src={cabin.image} className='sm:h-20 h-12 w-16 sm:w-28' alt="" />
+              <h1 className='font-semibold '>00{cabin.name}</h1>
+            </div>
+            <div className='col-span-3'><h1 className='py-3 capitalize'>{cabin.description}</h1></div>
+            <div className='col-span-2'><h1 className='py-3 '>${cabin.regularPrice.toFixed(2)}</h1></div>
+            <div className='col-span-2 flex justify-between items-center'>
+              <h1 className='py-3 text-green-700 '>${cabin.discount.toFixed(2)} </h1>
+              <div className='relative'>
+                <button onClick={() => setOpenModal((i) => i === index ? null : index)} className='hover:bg-gray-100 rounded-md transition-all duration-200 p-1 text-2xl mr-5 '>
+                  <CiMenuKebab />
+                </button>
+                <AnimatePresence>
+                  {openModal === index && (
+                    <motion.div
+                      ref={modalRef}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0 }}
+                      className='absolute flex flex-col justify-center right-10 capitalize text-sm w-32 h-24 bg-white shadow-lg rounded-md'>
+                      <button onClick={() => {
+                        setcabinToEdit(cabin)
+                        setShowform(true)
+                        setOpenModal(null)
+                      }} className='flex items-center gap-3 pl-4 h-1/3 transition-all duration-200 hover:bg-gray-100 '>
+                        <MdModeEditOutline />
+                        Edit
+                      </button>
+                      <button onClick={() => {
+                        DeleteCabin(cabin.id);
+                        setLoadingDelete(true);
+                      }} className='flex items-center gap-3 pl-4 h-1/3 transition-all duration-200 hover:bg-gray-100'>
+                        <FaTrash />
+                        <h1>Delete</h1>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
+      <Modal
+        isOpen={loadingDelete}
+        style={customStyles}
+        contentLabel="Loading Modal"
+      >
+        <DeleteLoading />
+      </Modal>
+
+      <CabinForm cabinToEdit={cabinToEdit} setcabinToEdit={setcabinToEdit} setShowform={setShowform} showform={showform} />
     </div>
-  )
-}
+  );
+};
 
 export default Cabin;
