@@ -1,7 +1,7 @@
 
 import React from 'react'
 
-const DeleteLoading = () => {
+const DeleteLoading:React.FC = () => {
     return (
         <div className='flex flex-col items-center gap-4'>
             <h1 className='text-center text-gray-700 capitalize font-semibold'>Please Wait While We are deleting your cabin!</h1>
