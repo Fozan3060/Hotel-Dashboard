@@ -10,12 +10,12 @@ import { FaArrowRight } from "react-icons/fa6";
 const Sidebar = () => {
   const [open, setopen] = useState(true)
   return (
-    <div className='lg:w-80 w-20'>
+    <div className='lg:w-80 w-8'>
       <div
-        className={`lg:sticky fixed w-80  z-30 bg-white  top-0 ${open ? "translate-x-0" : "-translate-x-60"
+        className={`lg:sticky z-10 fixed w-80   bg-white  top-0 ${open ? "translate-x-0" : "-translate-x-[17rem]"
           } transition-transform duration-300 h-screen border-r border-gray-100  `}
       >
-        <div className="flex h-20  justify-end   px-7 text-gray-800">
+        <div className="flex h-20  justify-end   px-3 text-gray-800">
           <button className={`lg:hidden block ${open ? "transform origin-center rotate-180 " : "transform origin-center rotate-270 "} duration-500 transition-allduration-1000 transition-all`} onClick={() => setopen((prev) => !prev)}>
             <FaArrowRight size={26} />
           </button>
