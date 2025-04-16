@@ -8,10 +8,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Modal from 'react-modal';
 import CabinForm, { CabinFormInputs } from './CabinForm';
 import useDeleteCabin from './customhooks/DeleteCabin';
-import DeleteLoading from './DeleteLoading';
+import Loading from './Loading';
 import CabinSkeletonLoader from './CabinSkeletonLoader';
+import LoadingModal from './LoadingModal';
 
-const Cabin:React.FC = () => {
+const Cabin: React.FC = () => {
   const [openModal, setOpenModal] = useState<number | null>(null);
   const [loadingDelete, setLoadingDelete] = useState<boolean>(false);
   const [showform, setShowform] = useState<boolean>(false);
@@ -44,22 +45,6 @@ const Cabin:React.FC = () => {
     };
   }, [openModal]);
 
-  const customStyles = {
-    overlay: {
-      zIndex: 10000,
-      backgroundColor: 'rgba(255, 255, 255, 0.75)',
-    },
-    content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-      height: "fit-content",
-      width: "20rem"
-    },
-  };
 
   return (
     <div>
@@ -127,16 +112,9 @@ const Cabin:React.FC = () => {
             </div>
           ))
         )}
-      
-      </div>
 
-      <Modal
-        isOpen={loadingDelete}
-        style={customStyles}
-        contentLabel="Loading Modal"
-      >
-        <DeleteLoading />
-      </Modal>
+      </div>
+      <LoadingModal msg='Please Wait While We are deleting your cabin' type='Deleting' LoadingOpen={loadingDelete} />
 
       <CabinForm
         cabinToEdit={cabinToEdit}

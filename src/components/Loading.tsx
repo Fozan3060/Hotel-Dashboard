@@ -1,10 +1,14 @@
 
 import React from 'react'
 
-const DeleteLoading:React.FC = () => {
+interface LoadingType {
+    type: string
+    msg:string
+}
+const Loading: React.FC<LoadingType> = ({ type,msg }) => {
     return (
         <div className='flex flex-col items-center gap-4'>
-            <h1 className='text-center text-gray-700 capitalize font-semibold'>Please Wait While We are deleting your cabin!</h1>
+            <h1 className='text-center text-gray-700 capitalize font-semibold'>{msg}!</h1>
             <div className='flex items-center gap-4  '>
                 <button disabled={true} type='button' className='flex items-center gap-2 py-2.5 px-5 text-md border border-gray-300 rounded-lg shadow-xs bg-gray-300 font-semibold text-gray-700 transition-all duration-500 '>
                     <svg className='w-5 h-5 stroke-zinc-900 animate-spin ' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -16,10 +20,10 @@ const DeleteLoading:React.FC = () => {
                                 <rect width='24' height='24' fill='white'></rect>
                             </clipPath>
                         </defs>
-                    </svg>Loading... </button>
+                    </svg>{type}... </button>
             </div>
         </div>
     )
 }
 
-export default DeleteLoading
+export default Loading
