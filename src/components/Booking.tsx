@@ -10,23 +10,39 @@ const Booking: React.FC = () => {
   const filter = searchParams.get('status') || 'all'
   const sortBy = searchParams.get('sortBy') || ''
 
-  let filteredBookings = Bookings || []
+  const [currentPage, setCurrentPage] = React.useState(1)
+  const pageSize = 6  // Adjusted from 5 to 6
 
+  // Filtering
+  let filteredBookings = Bookings || []
   if (filter === 'confirmed') {
     filteredBookings = filteredBookings.filter(b => b.status === 'confirmed')
   } else if (filter === 'unconfirmed') {
     filteredBookings = filteredBookings.filter(b => b.status !== 'confirmed')
   }
 
+  // Sorting
   if (sortBy === 'minAmount') {
     filteredBookings = filteredBookings.sort((a, b) => a.totalPrice - b.totalPrice)
   } else if (sortBy === 'maxAmount') {
     filteredBookings = filteredBookings.sort((a, b) => b.totalPrice - a.totalPrice)
   }
 
+  // Reset to first page when filter/sort changes
+  React.useEffect(() => {
+    setCurrentPage(1)
+  }, [filter, sortBy])
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredBookings.length / pageSize)
+  const paginatedBookings = filteredBookings.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  )
+
   return (
-    <div className='mx-auto px-4 sm:px-0 xl:w-[50rem] 2xl:w-[65rem]'>
-      <div className='flex flex-col sm:flex-row justify-between'>
+    <div className='mx-auto  px-4 sm:px-0 xl:w-[50rem] 2xl:w-[65rem]'>
+      <div className='flex flex-col  sm:flex-row justify-between'>
         <h1 className='text-gray-700 mb-5 sm:mb-0 font-bold text-4xl text-center sm:text-left pt-5'>
           All Bookings
         </h1>
@@ -34,7 +50,7 @@ const Booking: React.FC = () => {
       </div>
 
       {/* Header Row (hidden on mobile) */}
-      <div className='hidden sm:grid mt-10 border rounded-t-lg m-auto grid-cols-8 uppercase sm:text-base text-sm text-gray-700 font-semibold'>
+      <div className='hidden  sm:grid mt-10 border rounded-t-lg m-auto grid-cols-8 uppercase sm:text-base text-sm text-gray-700 font-semibold'>
         <div className='col-span-1 text-center py-3'>Cabin</div>
         <div className='col-span-2 py-3'>Guests</div>
         <div className='col-span-2 py-3'>Dates</div>
@@ -42,8 +58,8 @@ const Booking: React.FC = () => {
         <div className='col-span-1 py-3'>Amount</div>
       </div>
 
-      {/* Booking Rows */}
-      {filteredBookings.map((booking) => (
+      
+      {paginatedBookings.map((booking) => (
         <div
           key={booking.id}
           className='border bg-white border-t-0 m-auto text-sm sm:text-base text-gray-700 font-semibold mb-4 sm:mb-0 grid sm:grid-cols-8 sm:items-center sm:gap-2'
@@ -102,11 +118,42 @@ const Booking: React.FC = () => {
               {booking.status}
             </h1>
           </div>
-          <div className='hidden sm:flex items-center justify-center col-span-1 h-16'>
+          <div className='hidden sm:flex items-center  col-span-1 h-16'>
             <h1>${booking.totalPrice}</h1>
           </div>
         </div>
       ))}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center mt-6 gap-2">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 rounded bg-zinc-600 text-white disabled:opacity-50"
+          >
+            Prev
+          </button>
+
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 rounded ${currentPage === i + 1 ? 'bg-zinc-700 text-white' : 'bg-gray-100'}`}
+            >
+              {i + 1}
+            </button>
+          ))}
+
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 rounded bg-zinc-600 text-white disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   )
 }
