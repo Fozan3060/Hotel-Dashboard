@@ -1,28 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { getCabins } from '../services/apiCabins';
-import { useQuery } from '@tanstack/react-query';
 import { CiMenuKebab } from "react-icons/ci";
 import { MdModeEditOutline } from "react-icons/md";
 import { FaTrash } from "react-icons/fa";
 import { AnimatePresence, motion } from 'framer-motion';
-import Modal from 'react-modal';
 import CabinForm, { CabinFormInputs } from './CabinForm';
 import useDeleteCabin from './customhooks/DeleteCabin';
-import Loading from './Loading';
 import CabinSkeletonLoader from './CabinSkeletonLoader';
 import LoadingModal from './LoadingModal';
-
+import useFetchCabins from './customhooks/FetchCabin';
+import Filter_SortCabin from './Filter_SortCabin';
+import { useSearchParams } from 'react-router';
 const Cabin: React.FC = () => {
   const [openModal, setOpenModal] = useState<number | null>(null);
   const [loadingDelete, setLoadingDelete] = useState<boolean>(false);
   const [showform, setShowform] = useState<boolean>(false);
   const [cabinToEdit, setcabinToEdit] = useState<CabinFormInputs | null>(null);
 
-  const { isLoading, data: cabins } = useQuery({
-    queryKey: ['getCabins'],
-    queryFn: getCabins
+  const { isLoading, data: cabins } = useFetchCabins()
+  const [searchParams] = useSearchParams();
+  const discountFilter = searchParams.get('discount');
+  const sortBy = searchParams.get('sortBy');
+  let filteredCabins = cabins?.filter(cabin => {
+    if (discountFilter === 'discount') return cabin.discount > 0;
+    if (discountFilter === 'no-discount') return cabin.discount === 0;
+    return true;
   });
-
   const { mutate: DeleteCabin } = useDeleteCabin(setLoadingDelete);
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -44,12 +46,32 @@ const Cabin: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [openModal]);
-
+  if (sortBy) {
+    filteredCabins = [...(filteredCabins || [])]; // copy before sort
+    switch (sortBy) {
+      case 'minPrice':
+        filteredCabins.sort((a, b) => a.regularPrice - b.regularPrice);
+        break;
+      case 'maxPrice':
+        filteredCabins.sort((a, b) => b.regularPrice - a.regularPrice);
+        break;
+      case 'minDiscount':
+        filteredCabins.sort((a, b) => a.discount - b.discount);
+        break;
+      case 'maxDiscount':
+        filteredCabins.sort((a, b) => b.discount - a.discount);
+        break;
+    }
+  }
 
   return (
-    <div>
-      <h1 className='text-gray-700 font-bold text-4xl text-center pt-5'>All Cabins</h1>
-      <div className='grid mt-10 border rounded-t-lg m-auto grid-cols-11 sm:grid-cols-10 2xl:w-[75rem] xl:w-[50rem] uppercase sm:text-base text-sm text-gray-700 font-semibold'>
+    <div className='2xl:w-[65rem] mx-auto xl:w-[50rem]2xl:w-[65rem] xl:w-[50rem]'>
+      <div className='flex justify-between'>
+
+        <h1 className='text-gray-700 font-bold text-4xl text-center sm:text-left pt-5'>All Cabins</h1>
+        <Filter_SortCabin />
+      </div>
+      <div className='grid mt-10 border rounded-t-lg m-auto grid-cols-11 sm:grid-cols-10  uppercase sm:text-base text-sm text-gray-700 font-semibold'>
         <div className='col-span-3'><h1 className='py-3 text-center'>Cabins</h1></div>
         <div className='col-span-3'><h1 className='py-3 '>Capacity</h1></div>
         <div className='col-span-2'><h1 className='py-3 '>Price</h1></div>
@@ -60,8 +82,8 @@ const Cabin: React.FC = () => {
         {isLoading ? (
           Array.from({ length: 4 }).map((_, idx) => <CabinSkeletonLoader key={idx} />)
         ) : (
-          cabins?.map((cabin, index) => (
-            <div key={cabin.id} className='grid border-b sm:text-base text-sm bg-white items-center m-auto grid-cols-11 sm:grid-cols-10 2xl:w-[75rem] xl:w-[50rem] uppercase text-gray-700 font-semibold'>
+          filteredCabins?.map((cabin, index) => (
+            <div key={cabin.id} className='grid border-b sm:text-base text-sm bg-white items-center m-auto grid-cols-11 sm:grid-cols-10   uppercase text-gray-700 font-semibold'>
               <div className='col-span-3 sm:flex-row flex-col flex items-center sm:gap-11'>
                 <img src={cabin.image} className='sm:h-20 h-12 w-16 sm:w-28' alt="" />
                 <h1 className='font-semibold '>00{cabin.name}</h1>

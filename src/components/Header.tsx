@@ -5,7 +5,7 @@ import { TbLogout } from 'react-icons/tb';
 
 const Header = () => {
   return (
-    <div className="sticky w-full top-0 left-0 h-20 right-0 border-b border-gray-100 flex items-center justify-end px-4 bg-white ">
+    <div className="sticky w-full top-0 left-0 z-30  h-20 right-0 border-b border-gray-100 flex items-center justify-end px-4 bg-white ">
       <div className="hover:bg-gray-50 group transition-colors duration-200 p-2">
         <FaRegUser className="group-hover:text-blue-800 transition-all duration-200 ease-in-out" size={22} />
       </div>
