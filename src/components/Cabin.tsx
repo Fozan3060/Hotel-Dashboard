@@ -66,7 +66,7 @@ const Cabin: React.FC = () => {
 
   return (
     <div className='2xl:w-[65rem] mx-auto xl:w-[50rem]2xl:w-[65rem] xl:w-[50rem]'>
-      <div className='flex justify-between'>
+      <div className='sm:flex-row flex-col   justify-between'>
 
         <h1 className='text-gray-700 font-bold text-4xl text-center sm:text-left pt-5'>All Cabins</h1>
         <Filter_SortCabin />

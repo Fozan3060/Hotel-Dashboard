@@ -10,11 +10,23 @@ type SidebarLinkProps = {
 const SidebarLink: React.FC<SidebarLinkProps> = ({ children, to, icon: Icon }) => {
   return (
     <NavLink
-      className="group hover:bg-gray-50 hover:text-black text-gray-700 transition-all duration-300 ease-in-out font-medium text-lg flex gap-4 items-center rounded-lg py-4 px-6"
       to={to}
+      className={({ isActive }) =>
+        `group transition-all duration-300 ease-in-out font-medium text-lg flex gap-4 items-center rounded-lg py-4 px-6
+        ${isActive ? 'bg-zinc-700 text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-black'}`
+      }
     >
-      <Icon className="text-gray-700 group-hover:text-blue-800 duration-300 ease-in-out transition-colors" size={24} />
-      <span>{children}</span>
+      {({ isActive }) => (
+        <>
+          <Icon
+            className={`duration-300 ease-in-out transition-colors ${
+              isActive ? 'text-white' : 'text-gray-700 group-hover:text-blue-800'
+            }`}
+            size={24}
+          />
+          <span>{children}</span>
+        </>
+      )}
     </NavLink>
   );
 };
