@@ -10,6 +10,40 @@ export async function getCabins() {
   return cabins
 }
 
+
+export async function getSettings() {
+  let { data: settings, error } = await supabase.from('settings').select('*');
+  if (error) {
+    console.log('Error fetching cabins');
+  }
+  return settings
+}
+
+type SettingsUpdatePayload = {
+  minBookingLength: number;
+  maxGuestsPerBooking: number;
+  breakfastPrice: number;
+};
+
+export async function updateSettings(payload: SettingsUpdatePayload) {
+  const { data, error } = await supabase
+    .from('settings')
+    .update({
+      minBookingLength: payload.minBookingLength,
+      maxGuestsPerBooking: payload.maxGuestsPerBooking,
+      breakFastPrice: payload.breakfastPrice,
+    })
+    .eq('id', 1) // assuming you're always updating the first row
+    .select();
+
+  if (error) {
+    console.error('Error updating settings:', error.message);
+    throw new Error('Could not update settings');
+  }
+
+  return data;
+}
+
 export async function deleteCabins(id: number) {
   const { data, error } = await supabase
     .from('cabins')
@@ -81,3 +115,4 @@ export async function updateCabin(cabin: CabinFormInputs, cabinId: string) {
     throw new Error("Error updating cabin")
   }
 }
+
