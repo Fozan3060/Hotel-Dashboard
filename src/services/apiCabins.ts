@@ -18,6 +18,16 @@ export async function getSettings() {
   }
   return settings
 }
+export async function getBookings() {
+  let { data: bookings, error } = await supabase
+    .from('bookings')
+    .select('*,cabins(name),guests(fullname,email)')
+  if (error) {
+    console.log('Error fetching cabins');
+  }
+  return bookings
+}
+
 
 type SettingsUpdatePayload = {
   minBookingLength: number;
